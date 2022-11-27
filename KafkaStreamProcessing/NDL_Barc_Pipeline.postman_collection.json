@@ -1,0 +1,149 @@
+{
+	"info": {
+		"_postman_id": "7055128e-46ab-4399-ac79-6d4b1e59da41",
+		"name": "NDL_Barc_Pipeline",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "(localhost)/api/data/pipeline/v1/kafka/post/task/alert",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"payload\": \"{\\\"channelId\\\":1, \\\"lastEntryId\\\":101, \\\"eventType\\\":\\\"STOP\\\",\\\"createdAt\\\":\\\"2022-10-22\\\"}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/data/pipeline/v1/kafka/post/task/alert",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"data",
+						"pipeline",
+						"v1",
+						"kafka",
+						"post",
+						"task",
+						"alert"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "(localhost)/api/data/pipeline/v1/kafka/post/task/soilec",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"payload\": \"{\\\"channelId\\\":1, \\\"lastEntryId\\\":101, \\\"createdAt\\\":\\\"2022-10-22\\\", \\\"conductivity\\\":{\\\"key\\\":\\\"conductivity\\\",\\\"value\\\":1.021}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/data/pipeline/v1/kafka/post/task/soilec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"data",
+						"pipeline",
+						"v1",
+						"kafka",
+						"post",
+						"task",
+						"soilec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "(localhost)/api/data/pipeline/v1/kafka/post/task/soil",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"payload\": \"{\\\"channelId\\\":1, \\\"lastEntryId\\\":101, \\\"createdAt\\\":\\\"2022-10-22\\\", \\\"moisture\\\":{\\\"key\\\":\\\"moisture\\\",\\\"value\\\":1.0}, \\\"temperature\\\":{\\\"key\\\":\\\"temperature\\\",\\\"value\\\":0.10}, \\\"pressure\\\":{\\\"key\\\":\\\"pressure\\\",\\\"value\\\":90.0}, \\\"depth\\\":{\\\"key\\\":\\\"depth\\\",\\\"value\\\":10.0}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/data/pipeline/v1/kafka/post/task/soil",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"data",
+						"pipeline",
+						"v1",
+						"kafka",
+						"post",
+						"task",
+						"soil"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "(localhost)/api/data/pipeline/v1/kafka/post/task/solar",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"payload\": \"{\\\"channelId\\\":1, \\\"lastEntryId\\\":101, \\\"createdAt\\\":\\\"2022-10-22\\\"}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/data/pipeline/v1/kafka/post/task/solar",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"data",
+						"pipeline",
+						"v1",
+						"kafka",
+						"post",
+						"task",
+						"solar"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

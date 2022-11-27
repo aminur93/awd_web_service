@@ -1,0 +1,125 @@
+version: '3.5'
+
+networks:
+   web-app-net:
+       name: my-web-app-net
+       driver: bridge
+
+services:
+   api-gateway:
+     image: devndl/ndl-apps:api-gateway-1.0.2
+     environment:
+       app.build.name: RELEASE
+       app.build.version: 1.0.0
+       server.http.port: 80
+       redis.host: redis
+       redis.port: 6379
+       management.endpoints.web.exposure.include: health,metrics,httptrace,prometheus,gateway
+       app.authentication.host: auth-app
+       app.authentication.port: 8000
+       app.info.host: info-app
+       app.info.port: 8000
+       app.notification.host: notify-app
+       app.notification.port: 8000
+       app.data.pipeline.host: data-pipeline
+       app.data.pipeline.port: 8081
+     ports:
+       - 443:443
+       - 80:80
+     restart: on-failure
+     networks:
+       - web-app-net
+     labels:
+       collect_logs_with_filebeat: "true"
+       decode_log_event_to_json_object: "true"
+
+   auth-app:
+     image: devndl/ndl-apps:auth-service-1.0.2
+     restart: unless-stopped
+     environment:
+       DB_HOST: 172.31.36.211
+       DB_PORT: 3306
+       DB_DATABASE: barc_auth
+       DB_USERNAME: root
+       DB_PASSWORD: ndl@interport_db@4321
+       REDIS_HOST: redis
+       REDIS_PORT: 6379
+       NOTIFY_HOST: notify-app
+       NOTIFY_PORT: 8000
+     ports:
+       - 8000
+     networks:
+       - web-app-net
+
+   info-app:
+     image: devndl/ndl-apps:info-service-1.0.2
+     restart: unless-stopped
+     environment:
+       DB_HOST: 172.31.36.211
+       DB_PORT: 3306
+       DB_DATABASE: barc_info
+       DB_USERNAME: root
+       DB_PASSWORD: ndl@interport_db@4321
+       DB_CONNECTION_SECOND: mysql2
+       DB_HOST_SECOND: 172.31.36.211
+       DB_PORT_SECOND: 3306
+       DB_DATABASE_SECOND: barc_auth
+       DB_USERNAME_SECOND: root
+       DB_PASSWORD_SECOND: ndl@interport_db@4321
+       REDIS_HOST: redis
+       REDIS_PORT: 6379
+       AUTH_HOST: auth-app
+       AUTH_PORT: 8000
+     ports:
+       - 8000
+     networks:
+       - web-app-net
+
+   data-pipeline:
+     #image: devndl/ndl-apps:data-pipeline-kafka-1.0
+     image: data-pipeline-kafka:1.0
+     environment:
+       app.redis.host: redis
+       app.redis.port: 6379
+       cassandra.db.host: cassandra-db
+       cassandra.db.port: 9042
+       cassandra.db.drop.table.onstart: "false"
+       app.zookeeper.host: zookeeper
+       app.zookeeper.port: 2181
+       app.kafka.host: kafka
+       app.kafka.port: 9092
+       management.endpoints.web.exposure.include: health,metrics,httptrace,prometheus
+       app.home.logs: /home/Logs
+     ports:
+       - 8081
+     restart: on-failure
+
+   notify-app:
+     image: devndl/ndl-apps:notify-service-1.0.2
+     restart: unless-stopped
+     environment:
+       APP_NAME: noreply@interport.com
+       REDIS_HOST: redis
+       REDIS_PORT: 6379
+       AUTH_HOST: auth-app
+       AUTH_PORT: 8000
+       MAIL_MAILER: smtp
+       MAIL_HOST: nodesdigitalbd.com
+       MAIL_PORT: 465
+       MAIL_USERNAME: aminur.rashid@nodesdigitalbd.com
+       MAIL_PASSWORD: JjhjFCaDML3a
+       MAIL_ENCRYPTION: ssl
+       MAIL_FROM_ADDRESS: aminur.rashid@nodesdigitalbd.com
+     ports:
+       - 8000
+     networks:
+       - web-app-net
+
+   web-admin-app:
+     image: devndl/ndl-apps:admin-web-app-1.0.2
+     ports:
+       - 8080:80
+     networks:
+       - web-app-net
+
+##End of Scripts

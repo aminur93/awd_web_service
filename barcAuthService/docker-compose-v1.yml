@@ -1,0 +1,61 @@
+version: "3.7"
+services:
+
+    # Php service
+    php:
+      #image: devndl/ndl-apps:auth-service-1.0
+      image: auth-service:1.0
+      build:
+          context: .
+          target: php
+          args:
+            - APP_ENV=${APP_ENV}
+      container_name: barc-auth-app
+      environment:
+          - APP_ENV=${APP_ENV}
+          - CONTAINER_ROLE=app
+      working_dir: /var/www
+      volumes:
+        - ./:/var/www
+      ports:
+        - 8000:8000
+      depends_on:
+        - database
+        - redis
+
+    # Databse services
+    database:
+        image: mysql:8.0
+        container_name: barc-auth-mysql
+        ports:
+          - 3306:3306
+        environment:
+          - MYSQL_DATABASE=${DB_DATABASE}
+          - MYSQL_ROOT_USER=${DB_USERNAME}
+          - MYSQL_PASSWORD=${DB_PASSWORD}
+          - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+        volumes:
+          - auth-db-data:/var/lib/mysql
+
+    # PhpMyAdmin service
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: barc-auth-pma
+        depends_on:
+          - database
+        environment:
+            PMA_HOST: database
+            PMA_PORT: 3306
+        ports:
+          - 8077:80
+
+    # Redis service
+    redis:
+        image: redis:alpine
+        container_name: barc-auth-redis
+        command: redis-server --appendonly yes --requirepass  "${REDIS_PASSWORD}"
+        ports:
+          - 6379:6379
+
+volumes:
+  auth-db-data: ~

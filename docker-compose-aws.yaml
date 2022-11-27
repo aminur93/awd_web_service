@@ -1,0 +1,117 @@
+version: '3.5'
+
+networks:
+   web-app-net:
+       name: my-web-app-net
+       driver: bridge
+
+services:
+   api-gateway:
+     #image: devndl/ndl-apps:api-gateway-1.0
+     image: api-gateway:1.0
+     build:
+       context: ./ApiGatewayService
+       dockerfile: Dockerfile-embedded
+     environment:
+       app.build.name: DEBUG
+       app.build.version: 1.0.0
+       server.http.port: 80
+       redis.host: redis
+       redis.port: 6379
+       management.endpoints.web.exposure.include: health,metrics,httptrace,prometheus,gateway
+       app.authentication.host: auth-app
+       app.authentication.port: 8000
+       app.info.host: info-app
+       app.info.port: 8000
+       app.notification.host: notify-app
+       app.notification.port: 8000
+       app.data.pipeline.host: data-pipeline
+       app.data.pipeline.port: 8081
+     ports:
+       - 443:443
+       - 80:80
+     restart: on-failure
+     networks:
+       - web-app-net
+     labels:
+       collect_logs_with_filebeat: "true"
+       decode_log_event_to_json_object: "true"
+
+   auth-app:
+     #image: devndl/ndl-apps:auth-service-1.0
+     image: auth-service:1.0
+     build:
+       context: ./barcAuthService
+       dockerfile: Dockerfile
+     restart: unless-stopped
+     environment:
+       DB_HOST: mariadb
+       DB_PORT: 3306
+       DB_DATABASE: barc_auth
+       DB_USERNAME: root
+       DB_PASSWORD: root
+       REDIS_HOST: redis
+       REDIS_PORT: 6379
+     ports:
+       - 8000
+     networks:
+       - web-app-net
+
+   info-app:
+     #image: devndl/ndl-apps:info-service-1.0
+     image: info-service:1.0
+     build:
+       context: ./infoBarc
+       dockerfile: Dockerfile
+     restart: unless-stopped
+     environment:
+       DB_HOST: mariadb
+       DB_PORT: 3306
+       DB_DATABASE: barc_info
+       DB_USERNAME: root
+       DB_PASSWORD: root
+       REDIS_HOST: redis
+       REDIS_PORT: 6379
+     ports:
+       - 8000
+     networks:
+       - web-app-net
+
+   web-admin-app:
+     #image: devndl/ndl-apps:admin-web-app-1.0
+     image: admin-web-app:1.0
+     build:
+       context: ./barc_admin
+       dockerfile: Dockerfile
+     ports:
+       - 8080:8080
+     depends_on:
+       - api-gateway
+     networks:
+       - web-app-net
+
+   data-pipeline:
+     #image: devndl/ndl-apps:data-pipeline-kafka-1.0
+     image: data-pipeline-kafka:1.0
+     build:
+       context: ./KafkaStreamProcessing
+       dockerfile: Dockerfile
+     environment:
+       app.redis.host: redis
+       app.redis.port: 6379
+       cassandra.db.host: cassandra-db
+       cassandra.db.port: 9042
+       cassandra.db.drop.table.onstart: "true"
+       app.zookeeper.host: zookeeper
+       app.zookeeper.port: 2181
+       app.kafka.host: kafka
+       app.kafka.port: 9092
+       management.endpoints.web.exposure.include: health,metrics,httptrace,prometheus
+       app.home.logs: /home/Logs
+     ports:
+       - 8081
+     restart: on-failure
+     networks:
+       - web-app-net
+
+##End of Scripts

@@ -1,0 +1,57 @@
+# App Version:
+app.version: v${app.build.version}-${app.build.name}
+app.build.name: DEBUG
+app.build.version: 1.0.0
+
+# Spring Config:
+spring:
+  application:
+    name: ApiGatewayService
+  main:
+    banner-mode: off
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedHeaders:
+              - origin
+              - content-type
+              - accept
+              - authorization
+              - X-Auth-Token
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - HEAD
+            maxAge: 1209600
+            allowCredentials: false
+        add-to-simple-url-handler-mapping: true
+
+# SSL : JKS or PKCS12
+app.ssl.key-store: cert.p12
+app.ssl.key-store-password: password
+app.ssl.keyStoreType: PKCS12
+
+# SSL & Server Config:
+server:
+  port: 443
+  http:
+    port: 80
+  ssl.key-store: classpath:${app.ssl.key-store}
+  ssl.key-store-password: ${app.ssl.key-store-password}
+  ssl.keyStoreType: ${app.ssl.keyStoreType}
+
+# Actuator Config:
+management.endpoints.web.exposure.include: health,metrics,httptrace,prometheus,gateway
+
+# Redis-Config:
+redis:
+  host: localhost
+  port: 6379
+
+#END-Of-File

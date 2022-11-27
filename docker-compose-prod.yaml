@@ -1,0 +1,102 @@
+version: '3.5'
+
+networks:
+   web-app-net:
+       name: my-web-app-net
+       driver: overlay
+       #driver: bridge
+
+services:
+   api-gateway-app:
+     image: starter-api-gateway:1.0
+     environment:
+       management.endpoints.web.exposure.include: health,metrics,httptrace,prometheus,gateway
+       server.http.port: 80
+       app.authentication.host: authentication-app
+       app.authentication.port: 8080
+       app.content.container.host: content-container-app
+       app.content.container.port: 8081
+     ports:
+       - 443:443
+     deploy:
+       replicas: 1
+       update_config:
+         parallelism: 1
+         delay: 5s
+       restart_policy:
+         condition: on-failure
+       placement:
+         constraints:
+           - node.role == worker
+           - node.labels.worker-node-01 == yes
+     networks:
+       - web-app-net
+     labels:
+       collect_logs_with_filebeat: "true"
+       decode_log_event_to_json_object: "true"
+
+   authentication-app:
+      image: starter-auth-api:1.0
+      environment:
+         app.db.name: authDB
+         app.db.host: auth-db
+         app.db.port: 3306
+         app.db.username: root
+         app.db.password: root@123
+         management.endpoints.web.exposure.include: health,metrics,httptrace,prometheus
+      ports:
+        - 8080
+      deploy:
+        replicas: 1
+        update_config:
+          parallelism: 1
+          delay: 5s
+        restart_policy:
+          condition: on-failure
+        placement:
+          constraints:
+            - node.role == worker
+            - node.labels.worker-node-02 == yes
+      networks:
+        - web-app-net
+      labels:
+        collect_logs_with_filebeat: "true"
+        decode_log_event_to_json_object: "true"
+
+   content-container-app:
+     image: starter-content-container-api:1.0
+     environment:
+       mongo.db.name: testDB
+       mongo.db.host: mongo-db
+       mongo.db.port: 27017
+       mongo.db.username: root
+       mongo.db.password: example
+       app.redis.host: redis
+       app.redis.port: 6379
+       app.activemq.host: activemq
+       app.activemq.port: 61616
+       app.activemq.schema: tcp://
+       app.activemq.username: admin
+       app.activemq.password: admin
+       management.endpoints.web.exposure.include: health,metrics,httptrace,prometheus
+       app.upload.dir: /home/MyUserName/Uploads
+     ports:
+       - 8081
+     deploy:
+       replicas: 1
+       update_config:
+         parallelism: 1
+         delay: 5s
+       restart_policy:
+         condition: on-failure
+       placement:
+         constraints:
+           - node.role == worker
+           - node.labels.worker-node-04 == yes
+     networks:
+       - web-app-net
+     labels:
+       collect_logs_with_filebeat: "true"
+       decode_log_event_to_json_object: "true"
+
+##End of Scripts
